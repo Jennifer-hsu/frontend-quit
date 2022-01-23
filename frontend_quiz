@@ -1,0 +1,193 @@
+● 實作 Fibonacci number (費式數列) 
+建立函式 fibonacci 代入參數 position，position 表示的是想要得到 fibonacci sequence 中的第幾個數字的值。 
+
+const fibonacci=(position)=> {
+    const arr = [0, 1];
+    for (let i = 2; i <= position; i++) {
+      arr[i] = arr[i - 1] + arr[i - 2];
+    }
+    return arr[position];
+}
+
+console.log(fibonacci(0))  
+console.log(fibonacci(1))  
+console.log(fibonacci(2))  
+console.log(fibonacci(3))   
+console.log(fibonacci(4))  
+
+=========================================================
+
+● 使用 Linked List 實作 Stack 
+實作需包含以下方法。 
+push() : 添加新元素。 
+pop()：移除元素並返回被移除的元素。 
+size()：返回所有元素數量。 
+
+class Node{
+	constructor(data){
+        this.data=data;
+        this.next=null;
+    }
+}
+
+class Stack{
+    constructor(){
+        this.head=null;
+        this.length=0;
+    }
+
+    push(data){
+       let newNode=new Node(data);
+
+       if(!this.head){
+           this.head=newNode;
+       }else{
+           let currentHead=this.head;
+           while(currentHead.next){
+               currentHead=currentHead.next;
+           }
+           currentHead.next=newNode;
+       } 
+
+       this.length++;
+    }
+
+    pop(){
+        if(this.length===0){
+            return;
+        }else{
+            let currentHead=this.head;       
+            let popData;
+            if(this.length===1){
+            	popData=currentHead.data;
+            	this.head=null;
+            } 
+            while(currentHead.next){  
+                if(!currentHead.next.next){
+                  popData=currentHead.next.data;
+                  currentHead.next=null;                  
+                  break;
+                }
+                currentHead=currentHead.next;             
+            }
+            this.length--;
+            return popData;
+        }
+    }
+
+    size(){
+        return this.length;
+    }
+}
+
+const myStack=new Stack();
+myStack.push(1);
+myStack.push(2);
+myStack.push(3);
+console.log(myStack.pop());
+console.log(myStack.size());
+
+==========================================================================
+● 實作 Data Transformer 
+將下列輸入資料整合成期望的輸出結果。 
+
+//input data format
+const userIds = ['U01','U02', 'U03']; 
+const orderIds = ['T01', 'T02', 'T03', 'T04']; 
+const userOrders = [ 
+{ userId: 'U01', orderIds: ['T01', 'T02'] }, 
+{ userId: 'U02', orderIds: [] }, 
+{ userId: 'U03', orderIds: ['T03'] } 
+]; 
+const userData = { 'U01': 'Tom', 'U02': 'Sam', 'U03': 'John' } ;
+const orderData = { 
+'T01': { name: 'A', price: 499 }, 
+'T02': { name: 'B', price: 599 }, 
+'T03': { name: 'C', price: 699 }, 
+'T04': { name: 'D', price: 799 }, 
+};
+
+//data transform function
+const dataTransform=(userIds,orderIds,userOrders,userData,orderData)=>{
+    const result=[];
+    userOrders.map((userOrder,userOrderIndex)=>{
+        const userWithOrder={};
+
+        userWithOrder.user={};
+        userWithOrder.user.id=userOrder.userId;
+        userWithOrder.user.name=userData[userOrder.userId];
+
+        userWithOrder.orders=[];
+        userOrder.orderIds.map((orderId,orderIdIndex)=>{
+            const orderDetail={};
+            orderDetail.id=orderId;
+            orderDetail.name=orderData[orderId].name;
+            orderDetail.price=orderData[orderId].price;
+            userWithOrder.orders.push(orderDetail);
+        })
+        result.push(userWithOrder);
+    });
+    return result;
+}
+
+//output
+const result=dataTransform(userIds,orderIds,userOrders,userData,orderData);
+console.log(result);
+
+=============================================================================
+● 擇一實作 Debounce 或 Throttle 
+debounce 是在 delay 時間內如果重新觸發會取消前一次並保留當下觸發的執行。 throttle 在觸發後的 timeout 時間內只會執行一次。 
+//const debounceFunc = debounce(func, delay)
+
+const debounce=(func, delay)=>{
+  let timeout = null;
+  return function(){
+    let context = this;
+    let args = arguments;
+    clearTimeout(timeout)
+
+    timeout = setTimeout(function(){
+      func.apply(context, args)
+    }, delay)
+  }
+}
+================================================================
+● (加分題) 使用 Event Loop 結合實際操作範例擇一敘述 Debounce 或 Throttle 的運 作方式 
+
+以button連續點擊為範例。
+情境敘述:當使用者連續點擊增加某一房型的訂房數量的button時,畫面上要顯示對應數量的總價格
+(此題會以 console 顯示總價格)
+Debounce 的運作方式: 假設Delay時間為3秒, 當button 不斷在3秒的時間內被觸發, clearTimeout 會不斷被執行,直到停止觸發達3秒後才會執行 callback 函式
+
+以下為程式碼:
+const singalRoomPrice=500; //per night
+let singalRoomNum=1;
+
+const roomTotalPrice=()=>{
+    console.log('roomTotalPrice:'+ singalRoomNum*singalRoomPrice );
+}
+
+const debounce=(func, delay)=>{
+    let timeout = null;
+    return function(){
+      let context = this;
+      let args = arguments;
+      clearTimeout(timeout)
+  
+      timeout = setTimeout(function(){
+        func.apply(context, args)
+      }, delay)
+    }
+  }
+
+const debounceFunc=debounce(roomTotalPrice,3000);
+
+const inceaseNum=()=>{
+	singalRoomNum++;
+    debounceFunc();
+}
+
+//以連續執行inceaseNum函式 模擬 button click event 被連續觸發的情境
+inceaseNum(); //點擊一次
+inceaseNum(); //點擊2次
+inceaseNum(); //點擊3次
